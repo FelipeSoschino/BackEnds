@@ -1,0 +1,62 @@
+import { Component, OnInit } from '@angular/core';
+import { ProdutoService } from './../../shared/services/produto.service';
+import { Produto } from './../../shared/interfaces/produto.interface'; // Caminho ajustável
+
+@Component({
+  selector: 'app-produto',
+  standalone: true,
+  imports: [],
+  templateUrl: './produto.component.html',
+  styleUrl: './produto.component.css'
+})
+export class ProdutoComponent implements OnInit {
+
+  produtos: Produto[] = [];
+  produtosFiltrados: Produto[] = [];
+
+  categorias = [
+    { categoriaId: 1, nome: 'Produto' },
+    { categoriaId: 2, nome: 'Souvenir' },
+    { categoriaId: 3, nome: 'Curso' },
+    { categoriaId: 4, nome: 'Visita' },
+    { categoriaId: 5, nome: 'Doação' },
+  ];
+
+  categoriasSelecionadas: number[] = [];
+
+  constructor(private produtoServ: ProdutoService) {}
+
+  ngOnInit(): void {
+    this.getProduto();
+  }
+
+  getProduto(): void {
+    this.produtoServ.getProduto().subscribe({
+      next: (resp: Produto[]) => {
+        this.produtos = resp;
+        this.produtosFiltrados = resp;
+      },
+      error: (error) => console.error('Erro ao buscar produtos:', error)
+    });
+  }
+
+  toggleCategoria(categoriaId: number): void {
+    const index = this.categoriasSelecionadas.indexOf(categoriaId);
+    if (index >= 0) {
+      this.categoriasSelecionadas.splice(index, 1);
+    } else {
+      this.categoriasSelecionadas.push(categoriaId);
+    }
+    this.aplicarFiltro();
+  }
+
+  aplicarFiltro(): void {
+    if (this.categoriasSelecionadas.length === 0) {
+      this.produtosFiltrados = this.produtos;
+    } else {
+      this.produtosFiltrados = this.produtos.filter(p =>
+        this.categoriasSelecionadas.includes(p.categoriaId)
+      );
+    }
+  }
+}
