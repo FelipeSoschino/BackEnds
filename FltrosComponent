@@ -1,0 +1,82 @@
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CarrinhoComponent } from '../../carrinho/carrinho.component';
+import { Categoria } from '../../../core/models/categoria';
+import { ProdutoService } from '../../../shared/services/produto.service';
+import { Produto } from '../../../core/models/produto';
+
+
+interface Filtros{
+  categoria: Categoria,
+  preco: number,
+}
+
+
+@Component({
+  selector: 'app-filtros',
+  standalone: true,
+  imports: [CommonModule, MatSidenavModule, MatButtonModule, MatIconModule, CarrinhoComponent],
+  templateUrl: './filtros.component.html',
+  styleUrl: './filtros.component.css'
+})
+
+
+export class FiltrosComponent implements OnInit{
+
+  constructor(private produtoService: ProdutoService){}
+
+  produtos: Produto[] = [];
+
+
+  ngOnInit(): void {
+    this.getProdutos;
+  }
+
+  categoria: Categoria [] = [{id: 0, nome: "Produto",status:0},{id: 1, nome: "Produto",status:0},{id: 2, nome: "Produto",status:0},{id: 3, nome: "Produto",status:0}]
+
+  categoriasSelecionadas: number[] = [];
+
+  getProdutos(): void {
+    this.produtoService.listarProdutos().subscribe({
+      next: (produtosResponse: Produto[]) => {
+        this.produtos = produtosResponse;
+      },
+      error: (err: any) => {
+        console.error('Erro ao buscar os dados dos produtos: ', err);
+      },
+    });
+
+    toggleCategoria(categoriaId: number): void {
+      const index = this.categoriasSelecionadas.indexOf(categoriaId);
+      if (index >= 0) {
+        this.categoriasSelecionadas.splice(index, 1);
+      } else {
+        this.categoriasSelecionadas.push(categoriaId);
+      }
+      this.aplicarFiltro();
+    }
+
+    aplicarFiltro(): void {
+      if (this.categoriasSelecionadas.length === 0) {
+        this.produtosFiltrados = this.produtos;
+      } else {
+        this.produtosFiltrados = this.produtos.filter(p =>
+          this.categoriasSelecionadas.includes(p.categoria_id)
+        );
+      }
+    }
+
+}
+
+
+
+
+
+}
+function toggleCategoria(categoriaId: any, number: any) {
+  throw new Error('Function not implemented.');
+}
+
